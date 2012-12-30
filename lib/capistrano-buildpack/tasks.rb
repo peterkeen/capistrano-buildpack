@@ -1,20 +1,20 @@
 require 'digest/sha1'
 
-Capistrano::Configuration.instance(true) do
-  default_run_options[:pty] = true
-  default_run_options[:shell] = '/bin/bash'
-
-  set :deploy_to, "/apps/#{application}"
-  set :foreman_export_path, "/etc/init"
-  set :foreman_export_type, "upstart"
-  set :nginx_export_path, "/etc/nginx/conf.d"
-
+Capistrano::Configuration.instance.load do
   after "deploy:setup" do
     sudo "chown -R #{user} #{deploy_to}"
     sudo "gem install --upgrade foreman-export-nginx"
   end
 
   before "deploy" do
+    default_run_options[:pty] = true
+    default_run_options[:shell] = '/bin/bash'
+
+    set :deploy_to, "/apps/#{application}"
+    set :foreman_export_path, "/etc/init"
+    set :foreman_export_type, "upstart"
+    set :nginx_export_path, "/etc/nginx/conf.d"
+
     set :buildpack_hash, Digest::SHA1.hexdigest(buildpack_url)
     set :buildpack_path, "#{shared_path}/buildpack-#{buildpack_hash}"
 
