@@ -20,9 +20,8 @@ Or install it yourself as:
 
 Here's a basic Capfile that uses `Capistrano::Buildpack`:
 
-    load 'deploy'
-    load 'capistrano-buildpack'
-    
+    require 'rubygems'
+
     set :application, "bugsplatdotinfo"
     set :repository, "https://github.com/peterkeen/bugsplat.rb"
     set :scm, :git
@@ -41,7 +40,10 @@ Here's a basic Capfile that uses `Capistrano::Buildpack`:
       'GEM_PATH' => 'vendor/bundle/ruby/1.9.1:.',
       'RACK_ENV' => 'production',
     }
-
+    
+    load 'deploy'
+    require 'capistrano-buildpack'
+    
 To run a deploy:
 
     $ cap deploy:setup # create the required directory structure and gem install foreman-export-nginx
