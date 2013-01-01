@@ -2,6 +2,9 @@ require 'digest/sha1'
 
 if Capistrano::Configuration.instance
   Capistrano::Configuration.instance.load do
+
+    set :deploy_to, "/apps/#{application}"
+
     after "deploy:setup" do
       sudo "chown -R #{user} #{deploy_to}"
       sudo "gem install --upgrade foreman-export-nginx"
@@ -11,7 +14,6 @@ if Capistrano::Configuration.instance
       default_run_options[:pty] = true
       default_run_options[:shell] = '/bin/bash'
 
-      set :deploy_to, "/apps/#{application}"
       set :foreman_export_path, "/etc/init"
       set :foreman_export_type, "upstart"
       set :nginx_export_path, "/etc/nginx/conf.d"
