@@ -7,7 +7,7 @@ if Capistrano::Configuration.instance
 
     after "deploy:setup" do
       sudo "chown -R #{user} #{deploy_to}"
-      sudo "gem install --upgrade foreman-export-nginx"
+      sudo "gem install foreman-export-nginx --update"
     end
 
     before "deploy" do
