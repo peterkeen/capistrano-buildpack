@@ -66,8 +66,8 @@ you add to the `:additional_domains` setting gets tacked on at the end.
 
 ## Very Important Notes
 
-`Capistrano::Buildpack` will *not* run `bin/release` from the buildpack, so any environment variables that that attempts to set need to be set in `:deploy_env`.
-addition, at the moment the exported nginx config does not have compression turned on.
+`Capistrano::Buildpack` will *not* run `bin/release` from the buildpack, so any environment variables that that attempts to set need to be set using `read_env`.
+In addition, at the moment the exported nginx config does not have compression turned on.
 
 Also, note that right now this does not support HTTPS. I'm working on it.
 
