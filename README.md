@@ -33,16 +33,19 @@ Here's a basic Capfile that uses `Capistrano::Buildpack`:
     set :user, "peter"
     set :base_port, 6700
     set :concurrency, "web=1"
+
+    read_env 'prod'
    
-    set :deploy_env, {
-      'LANG' => 'en_US.UTF-8',
-      'PATH' => 'bin:vendor/bundle/ruby/1.9.1/bin:/usr/local/bin:/usr/bin:/bin',
-      'GEM_PATH' => 'vendor/bundle/ruby/1.9.1:.',
-      'RACK_ENV' => 'production',
-    }
-    
     load 'deploy'
     require 'capistrano-buildpack'
+    
+This will load a file named `.env.prod` which should consist of environment variables like this:
+
+    SOME_VAR_NAME=some_value
+    SOME_OTHER_VAR=something_else
+    
+This example just unconditionally loads 'prod' but you can have as many different sets as you want,
+loading them as appropriate in tasks.
     
 To run a deploy:
 
@@ -61,10 +64,12 @@ Deploy will do the following things:
 The nginx config will list at least one domain for the app: `<application>.<hostname>`, which in this case is `bugsplatdotinfo.examplevps.bugsplat.info`. Anything
 you add to the `:additional_domains` setting gets tacked on at the end.
 
-## Very Important Note
+## Very Important Notes
 
 `Capistrano::Buildpack` will *not* run `bin/release` from the buildpack, so any environment variables that that attempts to set need to be set in `:deploy_env`.
-addition, at the moment the exported nginx config does not have compression turned o
+addition, at the moment the exported nginx config does not have compression turned on.
+
+Also, note that right now this does not support HTTPS. I'm working on it.
 
 ## Contributing
 
