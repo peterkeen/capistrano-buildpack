@@ -64,6 +64,12 @@ Deploy will do the following things:
 The nginx config will list at least one domain for the app: `<application>.<hostname>`, which in this case is `bugsplatdotinfo.examplevps.bugsplat.info`. Anything
 you add to the `:additional_domains` setting gets tacked on at the end.
 
+## Running remote commands
+
+Sometimes you want to run a command on the other end that isn't defined in a Procfile. Do that with `cap remote`:
+
+    $ cap remote echo hi there
+
 ## Very Important Notes
 
 `Capistrano::Buildpack` will *not* run `bin/release` from the buildpack, so any environment variables that that attempts to set need to be set using `read_env`.

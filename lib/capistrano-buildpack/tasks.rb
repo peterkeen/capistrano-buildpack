@@ -19,12 +19,16 @@ if Capistrano::Configuration.instance
     end
 
     namespace :buildpack do
-      task :setup do
+
+      task :setup_env do
         set :deploy_to, "/apps/#{application}"
 
         default_run_options[:pty] = true
         default_run_options[:shell] = '/bin/bash'
-
+      end
+      
+      task :setup do
+        setup_env
         set :foreman_export_path, "/etc/init"
         set :foreman_export_type, "upstart"
         set :nginx_export_path, "/etc/nginx/conf.d"
@@ -42,7 +46,6 @@ if Capistrano::Configuration.instance
       end
 
       task "install_foreman_export_nginx" do
-
         sudo "gem install foreman-export-nginx --update"
       end
 
@@ -77,6 +80,13 @@ if Capistrano::Configuration.instance
       task :restart do
         buildpack.foreman_export
       end
+    end
+
+    task 'remote' do
+      buildpack.setup_env
+      command=ARGV.values_at(Range.new(ARGV.index('remote')+1,-1))
+      run "cd #{current_path}; foreman run #{command*' '}"
+      exit(0)      
     end
 
   end
