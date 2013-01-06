@@ -22,6 +22,12 @@ if Capistrano::Configuration.instance
 
       task :setup_env do
         set :deploy_to, "/apps/#{application}"
+        set :foreman_export_path, "/etc/init"
+        set :foreman_export_type, "upstart"
+        set :nginx_export_path, "/etc/nginx/conf.d"
+
+        set :buildpack_hash, Digest::SHA1.hexdigest(buildpack_url)
+        set :buildpack_path, "#{shared_path}/buildpack-#{buildpack_hash}"
 
         default_run_options[:pty] = true
         default_run_options[:shell] = '/bin/bash'
@@ -29,12 +35,6 @@ if Capistrano::Configuration.instance
       
       task :setup do
         setup_env
-        set :foreman_export_path, "/etc/init"
-        set :foreman_export_type, "upstart"
-        set :nginx_export_path, "/etc/nginx/conf.d"
-
-        set :buildpack_hash, Digest::SHA1.hexdigest(buildpack_url)
-        set :buildpack_path, "#{shared_path}/buildpack-#{buildpack_hash}"
 
         sudo "mkdir -p #{deploy_to}"
         sudo "chown -R #{user} #{deploy_to}"
@@ -75,12 +75,7 @@ if Capistrano::Configuration.instance
     after  "deploy:setup", "buildpack:install_foreman_export_nginx"
     before "deploy", "buildpack:setup"
     before "deploy:finalize_update", "buildpack:compile"
-
-    namespace :deploy do
-      task :restart do
-        buildpack.foreman_export
-      end
-    end
+    after  "deploy:create_symlink", "buildpack:foreman_export"
 
     task 'remote' do
       buildpack.setup_env
