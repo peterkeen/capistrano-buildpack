@@ -21,10 +21,13 @@ if Capistrano::Configuration.instance
     namespace :buildpack do
 
       task :setup_env do
-        set :deploy_to, "/apps/#{application}"
-        set :foreman_export_path, "/etc/init"
-        set :foreman_export_type, "upstart"
-        set :nginx_export_path, "/etc/nginx/conf.d"
+        _cset :deploy_to, "/apps/#{application}"
+        _cset :foreman_export_path, "/etc/init"
+        _cset :foreman_export_type, "upstart"
+        _cset :nginx_export_path, "/etc/nginx/conf.d"
+        _cset :use_ssl, nil
+        _cset :ssl_key_path, nil
+        _cset :ssl_cert_path, nil
 
         set :buildpack_hash, Digest::SHA1.hexdigest(buildpack_url)
         set :buildpack_path, "#{shared_path}/buildpack-#{buildpack_hash}"
@@ -63,7 +66,7 @@ if Capistrano::Configuration.instance
 
       task "foreman_export" do
         sudo "foreman export #{foreman_export_type} #{foreman_export_path} -d #{release_path} -l /var/log/#{application} -a #{application} -u #{user} -p #{base_port} -c #{concurrency}"
-        sudo "env ADDITIONAL_DOMAINS=#{additional_domains.join(',')} BASE_DOMAIN=$CAPISTRANO:HOST$ nginx-foreman export nginx #{nginx_export_path} -d #{release_path} -l /var/log/apps -a #{application} -u #{user} -p #{base_port} -c #{concurrency}"
+        sudo "env USE_SSL=#{use_ssl} SSL_CERT_PATH=#{ssl_cert_path} SSL_KEY_PATH=#{ssl_key_path} ADDITIONAL_DOMAINS=#{additional_domains.join(',')} BASE_DOMAIN=$CAPISTRANO:HOST$ nginx-foreman export nginx #{nginx_export_path} -d #{release_path} -l /var/log/apps -a #{application} -u #{user} -p #{base_port} -c #{concurrency}"
         sudo "service #{application} restart || service #{application} start"
         sudo "service nginx reload || service nginx start"
       end
