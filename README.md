@@ -64,6 +64,13 @@ Deploy will do the following things:
 The nginx config will list at least one domain for the app: `<application>.<hostname>`, which in this case is `bugsplatdotinfo.examplevps.bugsplat.info`. Anything
 you add to the `:additional_domains` setting gets tacked on at the end.
 
+Several other settings are available for controlling SSL:
+
+* `use_ssl`: true to listen on port 443
+* `ssl_cert_path`: a path to a certificate file on the server. You are responsible for getting the certificate there.
+* `ssl_key_path`: a path to a key file on the server. You are responsible for getting it there.
+* `force_ssl`: Force a redirect to SSL. This will unconditionally redirect to the first domain in `additional_domains`, so if you have multiple you may want to do this in your app instead.
+
 ## Running remote commands
 
 Sometimes you want to run a command on the other end that isn't defined in a Procfile. Do that with `cap remote`:
@@ -74,8 +81,6 @@ Sometimes you want to run a command on the other end that isn't defined in a Pro
 
 `Capistrano::Buildpack` will *not* run `bin/release` from the buildpack, so any environment variables that that attempts to set need to be set using `read_env`.
 In addition, at the moment the exported nginx config does not have compression turned on.
-
-Also, note that right now this does not support HTTPS. I'm working on it.
 
 ## Contributing
 
