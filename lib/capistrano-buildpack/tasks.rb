@@ -1,7 +1,23 @@
 require 'digest/sha1'
 
+def _cset(name, *args, &block)
+  unless exists?(name)
+    set(name, *args, &block)
+  end
+end
+
 if Capistrano::Configuration.instance
   Capistrano::Configuration.instance.load do
+
+    _cset(:deploy_to) { "/apps/#{application}" }
+    _cset(:buildpack_url) { abort "Please specify the buildpack URL to use, set :buildpack_url, 'http://example.com/buildpack'" }
+    _cset(:base_port) { abort "Please specify a base port to use, set :base_port, 6500" }
+    _cset(:concurrency) { abort "Please specify a concurrency level to use, set :concurrency, 'web-1'" }
+
+    _cset :foreman_export_path, "/etc/init"
+    _cset :foreman_export_type, "upstart"
+    _cset :nginx_export_path, "/etc/nginx/conf.d"
+    _cset :additional_domains, []
 
     def read_env(name)
       env = {}
@@ -21,23 +37,15 @@ if Capistrano::Configuration.instance
     namespace :buildpack do
 
       task :setup_env do
-        _cset :deploy_to, "/apps/#{application}"
-        _cset :foreman_export_path, "/etc/init"
-        _cset :foreman_export_type, "upstart"
-        _cset :nginx_export_path, "/etc/nginx/conf.d"
-        _cset :use_ssl, nil
-        _cset :ssl_key_path, nil
-        _cset :ssl_cert_path, nil
 
-        set :buildpack_hash, Digest::SHA1.hexdigest(buildpack_url)
-        set :buildpack_path, "#{shared_path}/buildpack-#{buildpack_hash}"
+        set(:buildpack_hash) { Digest::SHA1.hexdigest(buildpack_url) }
+        set(:buildpack_path) { "#{shared_path}/buildpack-#{buildpack_hash}" }
 
         default_run_options[:pty] = true
         default_run_options[:shell] = '/bin/bash'
       end
       
       task :setup do
-        setup_env
 
         sudo "mkdir -p #{deploy_to}"
         sudo "chown -R #{user} #{deploy_to}"
@@ -65,15 +73,20 @@ if Capistrano::Configuration.instance
       end
 
       task "foreman_export" do
+        _use_ssl = exists?(:use_ssl) ? "USE_SSL=on" : ''
+        _ssl_cert_path = exists?(:ssl_cert_path) ? "SSL_CERT_PATH=#{ssl_cert_path}" : ''
+        _ssl_key_path = exists?(:ssl_key_path) ? "SSL_KEY_PATH=#{ssl_key_path}" : ''
+
         sudo "foreman export #{foreman_export_type} #{foreman_export_path} -d #{release_path} -l /var/log/#{application} -a #{application} -u #{user} -p #{base_port} -c #{concurrency}"
-        sudo "env USE_SSL=#{use_ssl} SSL_CERT_PATH=#{ssl_cert_path} SSL_KEY_PATH=#{ssl_key_path} ADDITIONAL_DOMAINS=#{additional_domains.join(',')} BASE_DOMAIN=$CAPISTRANO:HOST$ nginx-foreman export nginx #{nginx_export_path} -d #{release_path} -l /var/log/apps -a #{application} -u #{user} -p #{base_port} -c #{concurrency}"
+        sudo "env #{_use_ssl} #{_ssl_cert_path} #{_ssl_key_path} ADDITIONAL_DOMAINS=#{additional_domains.join(',')} BASE_DOMAIN=$CAPISTRANO:HOST$ nginx-foreman export nginx #{nginx_export_path} -d #{release_path} -l /var/log/apps -a #{application} -u #{user} -p #{base_port} -c #{concurrency}"
         sudo "service #{application} restart || service #{application} start"
         sudo "service nginx reload || service nginx start"
       end
 
     end
 
-
+    before "deploy", "buildpack:setup_env"
+    before "deploy:setup", "buildpack:setup_env"
     before "deploy:setup", "buildpack:setup"
     after  "deploy:setup", "buildpack:install_foreman_export_nginx"
     before "deploy", "buildpack:setup"
