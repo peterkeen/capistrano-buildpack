@@ -71,6 +71,8 @@ Several other settings are available for controlling SSL:
 * `ssl_key_path`: a path to a key file on the server. You are responsible for getting it there.
 * `force_ssl`: Force a redirect to SSL. This will unconditionally redirect to the first domain in `additional_domains`, so if you have multiple you may want to do this in your app instead.
 
+To run your app as a different user than `:user`, use the `:app_user` setting. This user will not be created for you, you'll need to create it yourself, and it must have a proper home directory.
+
 ## Running remote commands
 
 Sometimes you want to run a command on the other end that isn't defined in a Procfile. Do that with `cap remote`:
