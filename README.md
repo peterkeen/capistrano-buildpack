@@ -64,12 +64,13 @@ Deploy will do the following things:
 The nginx config will list at least one domain for the app: `<application>.<hostname>`, which in this case is `bugsplatdotinfo.examplevps.bugsplat.info`. Anything
 you add to the `:additional_domains` setting gets tacked on at the end.
 
-Several other settings are available for controlling SSL:
+Several other settings are available:
 
 * `use_ssl`: true to listen on port 443
 * `ssl_cert_path`: a path to a certificate file on the server. You are responsible for getting the certificate there.
 * `ssl_key_path`: a path to a key file on the server. You are responsible for getting it there.
 * `force_ssl`: Force a redirect to SSL. This will unconditionally redirect to the first domain in `additional_domains`, so if you have multiple you may want to do this in your app instead.
+* `force_domain`: Force a redirect to the given domain.
 
 To run your app as a different user than `:user`, use the `:app_user` setting. This user will not be created for you, you'll need to create it yourself, and it must have a proper home directory.
 
