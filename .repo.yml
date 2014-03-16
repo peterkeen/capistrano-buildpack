@@ -1,0 +1,3 @@
+---
+name: 'Capistrano::Buildpack'
+description: Deploy 12-factor-style applications using Capistrano 2x
