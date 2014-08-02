@@ -65,8 +65,6 @@ if Capistrano::Configuration.instance
       end
 
       task "compile" do
-        run("cd #{buildpack_path} && RACK_ENV=production bin/compile #{release_path} #{shared_path}/.build/build_cache")
-
         env_lines = []
         deploy_env.each do |k,v|
           env_lines << "#{k}=#{v}"
@@ -74,6 +72,8 @@ if Capistrano::Configuration.instance
         env_contents = env_lines.join("\n") + "\n"
 
         put(env_contents, "#{release_path}/.env")
+
+        run("cd #{buildpack_path} && RACK_ENV=production bin/compile #{release_path} #{shared_path}/.build/build_cache")
       end
 
       task "foreman_export" do
