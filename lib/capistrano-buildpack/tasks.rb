@@ -83,9 +83,10 @@ if Capistrano::Configuration.instance
         _force_ssl = exists?(:force_ssl) ? "FORCE_SSL=#{force_ssl}" : ''
         _force_domain = exists?(:force_domain) ? "FORCE_DOMAIN=#{force_domain}" : ''
         _default_server = exists?(:default_server) ? "DEFAULT_SERVER=true" : ''
+        _listen_address = exists?(:listen_address) ? "LISTEN_ADDRESS=#{listen_address}" : ''
 
         sudo "foreman export #{foreman_export_type} #{foreman_export_path} -d #{release_path} -l /var/log/#{application} -a #{application} -u #{app_user} -p #{base_port} -c #{concurrency}"
-        sudo "env #{_use_ssl} #{_ssl_cert_path} #{_ssl_key_path} #{_force_ssl} #{_force_domain} ADDITIONAL_DOMAINS=#{additional_domains.join(',')} #{_default_server} BASE_DOMAIN=$CAPISTRANO:HOST$ nginx-foreman export nginx #{nginx_export_path} -d #{release_path} -l /var/log/apps -a #{application} -u #{app_user} -p #{base_port} -c #{concurrency}"
+        sudo "env #{_use_ssl} #{_ssl_cert_path} #{_ssl_key_path} #{_force_ssl} #{_force_domain} #{_listen_address} ADDITIONAL_DOMAINS=#{additional_domains.join(',')} #{_default_server} BASE_DOMAIN=$CAPISTRANO:HOST$ nginx-foreman export nginx #{nginx_export_path} -d #{release_path} -l /var/log/apps -a #{application} -u #{app_user} -p #{base_port} -c #{concurrency}"
         sudo "service #{application} restart || service #{application} start"
         sudo "service nginx reload || service nginx start"
       end
