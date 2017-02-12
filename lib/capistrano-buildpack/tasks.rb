@@ -12,7 +12,7 @@ if Capistrano::Configuration.instance
     _cset(:deploy_to)     { "/apps/#{application}" }
     _cset(:buildpack_url) { abort "Please specify the buildpack URL to use, set :buildpack_url, 'http://example.com/buildpack'" }
     _cset(:base_port)     { abort "Please specify a base port to use, set :base_port, 6500" }
-    _cset(:concurrency)   { abort "Please specify a concurrency level to use, set :concurrency, 'web=1'" }
+    _cset(:concurrency)   { '' }
     _cset(:app_user)      { user }
 
     _cset :foreman_export_path, "/etc/init"
@@ -85,8 +85,8 @@ if Capistrano::Configuration.instance
         _default_server = exists?(:default_server) ? "DEFAULT_SERVER=true" : ''
         _listen_address = exists?(:listen_address) ? "LISTEN_ADDRESS=#{listen_address}" : ''
 
-        sudo "foreman export #{foreman_export_type} #{foreman_export_path} -d #{release_path} -l /var/log/#{application} -a #{application} -u #{app_user} -p #{base_port} -c #{concurrency}"
-        sudo "env #{_use_ssl} #{_ssl_cert_path} #{_ssl_key_path} #{_force_ssl} #{_force_domain} #{_listen_address} ADDITIONAL_DOMAINS=#{additional_domains.join(',')} #{_default_server} BASE_DOMAIN=$CAPISTRANO:HOST$ nginx-foreman export nginx #{nginx_export_path} -d #{release_path} -l /var/log/apps -a #{application} -u #{app_user} -p #{base_port} -c #{concurrency}"
+        sudo "foreman export #{foreman_export_type} #{foreman_export_path} -d #{release_path} -l /var/log/#{application} -a #{application} -u #{app_user} -p #{base_port} -m #{concurrency}"
+        sudo "env #{_use_ssl} #{_ssl_cert_path} #{_ssl_key_path} #{_force_ssl} #{_force_domain} #{_listen_address} ADDITIONAL_DOMAINS=#{additional_domains.join(',')} #{_default_server} BASE_DOMAIN=$CAPISTRANO:HOST$ nginx-foreman export nginx #{nginx_export_path} -d #{release_path} -l /var/log/apps -a #{application} -u #{app_user} -p #{base_port} -m #{concurrency}"
         sudo "service #{application} restart || service #{application} start"
         sudo "service nginx reload || service nginx start"
       end
