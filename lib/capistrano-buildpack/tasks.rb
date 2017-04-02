@@ -19,6 +19,7 @@ if Capistrano::Configuration.instance
     _cset :foreman_export_type, "upstart"
     _cset :nginx_export_path, "/etc/nginx/conf.d"
     _cset :additional_domains, []
+    _cset :skip_nginx_export, false
 
     def read_env(name)
       env = {}
@@ -61,7 +62,9 @@ if Capistrano::Configuration.instance
       end
 
       task "install_foreman_export_nginx" do
-        sudo "gem install foreman-export-nginx --update"
+        unless skip_nginx_export
+          sudo "gem install foreman-export-nginx --update"
+        end
       end
 
       task "compile" do
